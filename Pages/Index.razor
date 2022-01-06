@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using Blazorise
+@using Blazorise.Components
 
 <PageTitle>Index</PageTitle>
 
@@ -6,25 +8,31 @@
 
 Welcome to your new app.
 
-<Button Color="Color.Primary" Clicked="@ShowModal">Show Modal</Button>
+<Div>
+    <Button Color="Color.Primary" Clicked="@ShowModal1">Show Modal1</Button>
+    <Button Color="Color.Primary" Clicked="@ShowModal2">Show Modal2</Button>
 
-<Span Margin="Margin.Is3.FromLeft">Modal is visible: @modalVisible</Span>
+</Div>
 
 <Modal @bind-Visible="@modalVisible">
     <ModalContent Centered="true">
         <ModalHeader>
-            <ModalTitle>Employee edit</ModalTitle>
+            <ModalTitle>@title</ModalTitle>
             <CloseButton />
         </ModalHeader>
         <ModalBody>
-            <Field>
-                <FieldLabel>Name</FieldLabel>
-                <TextEdit Placeholder="Enter name..." />
-            </Field>
-            <Field>
-                <FieldLabel>Surname</FieldLabel>
-                <TextEdit Placeholder="Enter surname..." />
-            </Field>
+            <Autocomplete TItem="cName"
+                          TValue="string"
+                          Data="@namesList"
+                          TextField="@(( item ) => item.Name)"
+                          ValueField="@(( item ) => item.Id)"
+                          @bind-SelectedValue="@selectedSearchValue"
+                          @bind-SelectedText="selectedAutoCompleteText"
+                          Placeholder="Search..."
+                          Filter="AutocompleteFilter.StartsWith"
+                          FreeTyping>
+                <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
+            </Autocomplete>
         </ModalBody>
         <ModalFooter>
             <Button Color="Color.Secondary" Clicked="@HideModal">Close</Button>
@@ -32,11 +40,46 @@ Welcome to your new app.
         </ModalFooter>
     </ModalContent>
 </Modal>
-@code{
+@code {
     private bool modalVisible;
+    List<cName> namesList;
+    List<cName> List1;
+    List<cName> List2;
+    string title;
+    string selectedSearchValue, selectedAutoCompleteText;
 
-    private Task ShowModal()
+    async protected override Task OnInitializedAsync()
     {
+        List1 = new List<cName>() {
+            new cName{ Id="1",Name="John1" },
+            new cName{ Id="1",Name="Jim1" } ,
+            new cName{ Id="1",Name="Jack1" } ,
+            new cName{ Id="1",Name="Jill1" }
+        };
+        List2 = new List<cName>() {
+            new cName{ Id="1",Name="John2" } ,
+            new cName{ Id="1",Name="Jim2" } ,
+            new cName{ Id="1",Name="Jack2" } ,
+            new cName{ Id="1",Name="Jill2" }
+        };
+    }
+
+    private Task ShowModal1()
+    {
+        selectedAutoCompleteText = null;
+        selectedSearchValue = null;
+        title = "Using List1";
+        namesList = List1;
+        modalVisible = true;
+
+        return Task.CompletedTask;
+    }
+    private Task ShowModal2()
+    {
+        selectedAutoCompleteText = null;
+        selectedSearchValue = null;
+        title = "Using List2";
+        namesList = List2;
         modalVisible = true;
 
         return Task.CompletedTask;
@@ -47,5 +90,11 @@ Welcome to your new app.
         modalVisible = false;
 
         return Task.CompletedTask;
+    }
+
+    public class cName
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
     }
 }
